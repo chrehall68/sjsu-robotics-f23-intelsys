@@ -11,7 +11,7 @@ class GridDisplay:
         self.grid = grid
 
     def render(
-        self, robot_pos: List[int], end_goal: List[int]
+        self, robot_pos: List[int], end_goal: List[int], path: List[int]
     ) -> pygame.surface.SurfaceType:
         height = (
             self.grid.height
@@ -59,7 +59,20 @@ class GridDisplay:
                         ),
                         GridDisplay.CELL_SIZE // 2,
                     )
-                if [row, col] == end_goal:
+                elif [row, col] == robot_pos:
+                    pygame.draw.rect(
+                        ret,
+                        BLUE,
+                        pygame.Rect(
+                            (
+                                row * GridDisplay.CELL_SIZE,
+                                col * GridDisplay.CELL_SIZE,
+                                GridDisplay.CELL_SIZE,
+                                GridDisplay.CELL_SIZE,
+                            )
+                        ),
+                    )
+                elif [row, col] == end_goal:
                     pygame.draw.rect(
                         ret,
                         RED,
@@ -72,10 +85,10 @@ class GridDisplay:
                             )
                         ),
                     )
-                if [row, col] == robot_pos:
+                elif [row, col] in path:
                     pygame.draw.rect(
                         ret,
-                        BLUE,
+                        GREEN,
                         pygame.Rect(
                             (
                                 row * GridDisplay.CELL_SIZE,

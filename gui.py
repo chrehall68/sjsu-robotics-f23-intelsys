@@ -1,6 +1,6 @@
 from typing import Optional, List, Callable
 from grid.grid import Grid
-from grid.dijkstra import dijkstra
+from grid.a_star import a_star
 from gridDisplay import GridDisplay
 import pygame
 from constants import *
@@ -15,7 +15,7 @@ class Scene:
     and knowing where the end goal is.
     """
 
-    def __init__(self, height: int, width: int, obstacle_rate: float = 0.1) -> None:
+    def __init__(self, height: int, width: int, obstacle_rate: float = 0) -> None:
         self.grid = Grid(height, width)
 
         # add end goal
@@ -35,6 +35,9 @@ class Scene:
 
         self.grid_display = GridDisplay(self.grid)
 
+        # for path
+        self.path = []
+
     def getUniqueCoord(self, used: List[List[int]]):
         num_options = self.grid.width * self.grid.height - 1
         choice = random.randint(0, num_options)
@@ -44,7 +47,7 @@ class Scene:
         return [choice // self.grid.width, choice % self.grid.width]
 
     def render(self) -> pygame.SurfaceType:
-        return self.grid_display.render(self.robot_pos, self.end_goal)
+        return self.grid_display.render(self.robot_pos, self.end_goal, self.path)
 
     def draw(self, screen: pygame.Surface) -> None:
         screen.blit(self.render(), (0, 0))
@@ -76,25 +79,31 @@ class Scene:
         end goal, if possible, else empty list, in reverse order
         (so that getINstructions.pop() returns the first function to call)
         """
-        ret = dijkstra(self.grid.grid, self.robot_pos, self.end_goal)
+        self.path = a_star(self.grid.grid, self.robot_pos, self.end_goal)
         instructions = []
-        for i in range(1, len(ret)):
-            if ret[i][1] > ret[i - 1][1]:
+        for i in range(1, len(self.path)):
+            if self.path[i][1] > self.path[i - 1][1]:
                 instructions.append(self.moveDown)
-            if ret[i][1] < ret[i - 1][1]:
+            if self.path[i][1] < self.path[i - 1][1]:
                 instructions.append(self.moveUp)
-            if ret[i][0] > ret[i - 1][0]:
+            if self.path[i][0] > self.path[i - 1][0]:
                 instructions.append(self.moveRight)
-            if ret[i][0] < ret[i - 1][0]:
+            if self.path[i][0] < self.path[i - 1][0]:
                 instructions.append(self.moveLeft)
         return list(reversed(instructions))
 
-    def addObstacle(self, cell: List[int]):
-        self.grid.addObstacle(cell)
+    def toggleObstacle(self, cell: List[int]):
+        if self.grid.isObstacle(cell):
+            self.grid.removeObstacle(cell)
+        elif cell != self.robot_pos and cell != self.end_goal:
+            self.grid.addObstacle(cell)
 
     def setEndGoal(self, cell: List[int]):
         if not self.grid.isObstacle(cell):
             self.end_goal = cell
+
+    def clearPath(self):
+        self.path = []
 
 
 class GUI:
@@ -145,20 +154,19 @@ class GUI:
                     if not self.on_autopilot:
                         if event.key == pygame.K_s:
                             self.scene.moveDown()
+                            self.scene.clearPath()
                         if event.key == pygame.K_a:
                             self.scene.moveLeft()
+                            self.scene.clearPath()
                         if event.key == pygame.K_d:
                             self.scene.moveRight()
+                            self.scene.clearPath()
                         if event.key == pygame.K_w:
                             self.scene.moveUp()
+                            self.scene.clearPath()
                         if event.key == pygame.K_r:
                             self.reset()
-                        if event.key == pygame.K_e:
-                            if not self.setting_obstacle:
-                                self.setting_end_goal = True
-                        if event.key == pygame.K_o:
-                            if not self.setting_end_goal:
-                                self.setting_obstacle = True
+                            self.scene.clearPath()
                         if event.key == pygame.K_p:
                             self.on_autopilot = True
                             instructions = self.scene.getInstructions()
@@ -174,12 +182,10 @@ class GUI:
                             mouse_pos[0] // GridDisplay.CELL_SIZE,
                             mouse_pos[1] // GridDisplay.CELL_SIZE,
                         ]
-                        if self.setting_end_goal:
+                        if event.button == 1:  # left click
+                            self.scene.toggleObstacle(coord)
+                        else:  # right click
                             self.scene.setEndGoal(coord)
-                            self.setting_end_goal = False
-                        if self.setting_obstacle:
-                            self.scene.addObstacle(coord)
-                            self.setting_obstacle = False
 
             if self.on_autopilot:
                 if len(instructions) == 0:
@@ -204,10 +210,8 @@ class GUI:
             " - Use r to reset.",
             "",
             "Advanced:",
-            " - Press o, then click on the map",
-            "     to create an obstacle.",
-            " - Press e, then click on the map",
-            "     to set the end goal.",
+            " - left click to toggle obstacles.",
+            " - right click to set end goal",
         ]
         rendered_texts = [self.font.render(text, True, BLACK) for text in texts]
 

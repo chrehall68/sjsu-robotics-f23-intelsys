@@ -1,6 +1,6 @@
 # File by Eliot Hall
 # 9/16/23
-# dijstra's shortest path algorithm
+# a_star shortest path algorithm
 
 from heapq import heappop, heappush
 from typing import List
@@ -35,9 +35,7 @@ class WeightedCoordinate:
         return hash(tuple(self.coord))
 
 
-def dijkstra(
-    maze: List[List[int]], start: List[int], end: List[int]
-) -> List[List[int]]:
+def a_star(maze: List[List[int]], start: List[int], end: List[int]) -> List[List[int]]:
     """
     assume 0s mean movable and 1s mean non-movable
 
@@ -98,7 +96,11 @@ def dijkstra(
             )
 
             # add it to the heap (and visited set) if we haven't seen it
-            temp = WeightedCoordinate(neighbor, manhattan_distance(neighbor))
+            # the priority is `how far we had to go to reach it` + `how far we have left to go`
+            temp = WeightedCoordinate(
+                neighbor,
+                weights[neighbor[0]][neighbor[1]] + manhattan_distance(neighbor),
+            )
             if temp not in visited:
                 heappush(connections, temp)
                 visited.add(temp)
