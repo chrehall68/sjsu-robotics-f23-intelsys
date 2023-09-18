@@ -30,9 +30,9 @@ Inside `grid`, there are two files:
 - `grid.py` provides an easy-to-use grid for export
 - `a_star.py` provides the pathfinding algorithm. Since the goal is to move to the destination while avoiding the obstacles on the grid,
 we use [A* shortest path algorithm](https://en.wikipedia.org/wiki/A*_search_algorithm)
-and set the cost of all obstacles to an infinite amount.
+and set the cost of all obstacles to an infinite amount. The choice of A* as the algorithm (as opposed to BFS or dijkstra) was due to the fact that A* prioritizes elements based on a heuristic of how many steps it took and how far it still has to go, thereby only exploring "towards" the goal. In contast, BFS explores all edges and dijkstra would effectively do the same since there all edges have the same weight.
 ### `gui`
 Inside `gui`, there are three files:
 - `constants.py` contains color constants
 - `gridDisplay.py` contains the `GridDisplay` class for easy displaying of a `Grid` object
-- `gui.py` contains the `Scene` and `GUI` classes. The `GUI` class takes in user input, while the Scene class takes care of updating the internal `Grid`, robot position, and end goal.  
+- `gui.py` contains the `Scene` and `GUI` classes. The `GUI` class takes in user input, while the Scene class takes care of updating the internal `Grid`, robot position, and end goal.
