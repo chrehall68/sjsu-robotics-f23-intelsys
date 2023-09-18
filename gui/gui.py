@@ -21,7 +21,7 @@ class Scene:
     this is meant to interact with the GUI, which also uses that format.
     """
 
-    def __init__(self, width: int, height: int, obstacle_rate: float = 0) -> None:
+    def __init__(self, width: int, height: int, obstacle_rate: float = 0.2) -> None:
         self.grid = Grid(height, width)
 
         # add end goal
@@ -129,14 +129,15 @@ class GUI:
     the scene
     """
 
-    GUI_EXTRA_SPACE = 300
-    FONT_SIZE = 20
+    GUI_EXTRA_SPACE = 300  # extra width for instructions; in px
+    FONT_SIZE = 20  # font size, in px
+    MIN_HEIGHT = 10  # min height in blocks; otherwise display gets weird
 
-    def __init__(self, initial_grid_size: List[int]) -> None:
+    def __init__(self, grid_size: List[int]) -> None:
         """
         initial_grid_size should be width, height
         """
-        self.scene = Scene(*initial_grid_size)
+        self.scene = Scene(grid_size[0], max(grid_size[1], GUI.MIN_HEIGHT))
 
         # screen sizes
         self.scene_size = self.scene.render().get_size()
@@ -156,8 +157,8 @@ class GUI:
         self.setting_obstacle = False
 
         # useful for resetting
-        self.scene_height = initial_grid_size[0]
-        self.scene_width = initial_grid_size[1]
+        self.scene_height = grid_size[0]
+        self.scene_width = grid_size[1]
 
     def run(self):
         instructions = []
@@ -224,14 +225,19 @@ class GUI:
         ret.fill(WHITE)
 
         texts = [
+            "Robot simulator.",
+            " - You are blue",
+            " - Goal is red",
+            " - Obstacles are black",
+            "",
             "Basic instructions:",
             " - Use wasd to move.",
             " - Use p to autopilot.",
             " - Use r to reset.",
             "",
             "Advanced:",
-            " - left click to toggle obstacles.",
-            " - right click to set end goal",
+            " - Left click to toggle obstacles.",
+            " - Right click to set Goal",
         ]
         rendered_texts = [self.font.render(text, True, BLACK) for text in texts]
 
