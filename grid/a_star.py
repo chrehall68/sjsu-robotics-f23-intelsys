@@ -37,11 +37,16 @@ class WeightedCoordinate:
 
 def a_star(maze: List[List[int]], start: List[int], end: List[int]) -> List[List[int]]:
     """
-    assume 0s mean movable and 1s mean non-movable
-
     Returns list of coordinates to go through to reach
     end in the shortest moves possible while avoiding obstacles
     or an empty list if impossible
+
+    Note: returns steps in [row, col] format
+
+    Arguments:
+        - maze: List[List[int]] - the maze to navigate through. assume 0s mean movable and 1s mean non-movable
+        - start: List[int] - the starting position, in [row, col] format
+        - end: List[int] - the ending position, in [row, col] format
     """
     weights = [[float("inf") for _ in range(len(maze[0]))] for _ in range(len(maze))]
 

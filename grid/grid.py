@@ -5,6 +5,7 @@ class Grid:
     """
     Protected 2d array to manage obstacles.
     Provides quick accessing of obstacles and the underlying grid
+    Uses [row, col] in public interface
     """
 
     def __init__(
@@ -24,13 +25,22 @@ class Grid:
         return str(self)
 
     def isObstacle(self, cell: List[int]) -> bool:
+        """
+        Cell should be [row, col]
+        """
         return cell in self.obstacles
 
     def addObstacle(self, cell: List[int]):
+        """
+        Cell should be [row, col]
+        """
         if cell not in self.obstacles:
             self.obstacles.append(cell)
 
     def removeObstacle(self, cell: List[int]):
+        """
+        Cell should be [row, col]
+        """
         if cell in self.obstacles:
             self.obstacles.remove(cell)
 

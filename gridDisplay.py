@@ -5,6 +5,10 @@ from typing import List
 
 
 class GridDisplay:
+    """
+    Uses [x, y]
+    """
+
     CELL_SIZE = 30
 
     def __init__(self, grid: Grid) -> None:
@@ -27,7 +31,7 @@ class GridDisplay:
         )
 
         # make the surface
-        ret = pygame.Surface((height, width))
+        ret = pygame.Surface((width, height))
         ret.fill(GRAY)
 
         # draw the squares
@@ -54,8 +58,8 @@ class GridDisplay:
                         ret,
                         BLACK,
                         (
-                            row * GridDisplay.CELL_SIZE + GridDisplay.CELL_SIZE // 2,
                             col * GridDisplay.CELL_SIZE + GridDisplay.CELL_SIZE // 2,
+                            row * GridDisplay.CELL_SIZE + GridDisplay.CELL_SIZE // 2,
                         ),
                         GridDisplay.CELL_SIZE // 2,
                     )
@@ -65,8 +69,8 @@ class GridDisplay:
                         BLUE,
                         pygame.Rect(
                             (
-                                row * GridDisplay.CELL_SIZE,
                                 col * GridDisplay.CELL_SIZE,
+                                row * GridDisplay.CELL_SIZE,
                                 GridDisplay.CELL_SIZE,
                                 GridDisplay.CELL_SIZE,
                             )
@@ -78,8 +82,8 @@ class GridDisplay:
                         RED,
                         pygame.Rect(
                             (
-                                row * GridDisplay.CELL_SIZE,
                                 col * GridDisplay.CELL_SIZE,
+                                row * GridDisplay.CELL_SIZE,
                                 GridDisplay.CELL_SIZE,
                                 GridDisplay.CELL_SIZE,
                             )
@@ -91,8 +95,8 @@ class GridDisplay:
                         GREEN,
                         pygame.Rect(
                             (
-                                row * GridDisplay.CELL_SIZE,
                                 col * GridDisplay.CELL_SIZE,
+                                row * GridDisplay.CELL_SIZE,
                                 GridDisplay.CELL_SIZE,
                                 GridDisplay.CELL_SIZE,
                             )

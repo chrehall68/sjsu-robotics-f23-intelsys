@@ -1,4 +1,4 @@
-from typing import Optional, List, Callable
+from typing import List, Callable
 from grid.grid import Grid
 from grid.a_star import a_star
 from gridDisplay import GridDisplay
@@ -13,9 +13,12 @@ class Scene:
     """
     Scene manager that takes care of moving the robot
     and knowing where the end goal is.
+
+    Public interface is provided in [x, y] format since
+    this is meant to interact with the GUI, which also uses that format.
     """
 
-    def __init__(self, height: int, width: int, obstacle_rate: float = 0) -> None:
+    def __init__(self, width: int, height: int, obstacle_rate: float = 0) -> None:
         self.grid = Grid(height, width)
 
         # add end goal
@@ -61,16 +64,16 @@ class Scene:
         ):
             self.robot_pos = next_pos
 
-    def moveLeft(self):
+    def moveUp(self):
         self.move([-1, 0])
 
-    def moveRight(self):
+    def moveDown(self):
         self.move([1, 0])
 
-    def moveUp(self):
+    def moveLeft(self):
         self.move([0, -1])
 
-    def moveDown(self):
+    def moveRight(self):
         self.move([0, 1])
 
     def getInstructions(self) -> List[Callable]:
@@ -82,23 +85,34 @@ class Scene:
         self.path = a_star(self.grid.grid, self.robot_pos, self.end_goal)
         instructions = []
         for i in range(1, len(self.path)):
+            # since path is in [row, col] format, make sure to convert
             if self.path[i][1] > self.path[i - 1][1]:
-                instructions.append(self.moveDown)
-            if self.path[i][1] < self.path[i - 1][1]:
-                instructions.append(self.moveUp)
-            if self.path[i][0] > self.path[i - 1][0]:
                 instructions.append(self.moveRight)
-            if self.path[i][0] < self.path[i - 1][0]:
+            if self.path[i][1] < self.path[i - 1][1]:
                 instructions.append(self.moveLeft)
+            if self.path[i][0] > self.path[i - 1][0]:
+                instructions.append(self.moveDown)
+            if self.path[i][0] < self.path[i - 1][0]:
+                instructions.append(self.moveUp)
         return list(reversed(instructions))
 
     def toggleObstacle(self, cell: List[int]):
+        """
+        Cell should be [x, y]
+        """
+        # convert to [row, col]
+        cell = [cell[1], cell[0]]
         if self.grid.isObstacle(cell):
             self.grid.removeObstacle(cell)
         elif cell != self.robot_pos and cell != self.end_goal:
             self.grid.addObstacle(cell)
 
     def setEndGoal(self, cell: List[int]):
+        """
+        Cell should be [x, y]
+        """
+        # convert to [row, col]
+        cell = [cell[1], cell[0]]
         if not self.grid.isObstacle(cell):
             self.end_goal = cell
 
@@ -115,7 +129,10 @@ class GUI:
     GUI_EXTRA_SPACE = 300
     FONT_SIZE = 20
 
-    def __init__(self, initial_grid_size: Optional[List[int]] = [10, 10]) -> None:
+    def __init__(self, initial_grid_size: List[int]) -> None:
+        """
+        initial_grid_size should be width, height
+        """
         self.scene = Scene(*initial_grid_size)
 
         # screen sizes
