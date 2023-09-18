@@ -89,6 +89,13 @@ class Scene:
                 instructions.append(self.moveLeft)
         return list(reversed(instructions))
 
+    def addObstacle(self, cell: List[int]):
+        self.grid.addObstacle(cell)
+
+    def setEndGoal(self, cell: List[int]):
+        if not self.grid.isObstacle(cell):
+            self.end_goal = cell
+
 
 class GUI:
     """
@@ -96,10 +103,28 @@ class GUI:
     the scene
     """
 
+    GUI_EXTRA_SPACE = 300
+    FONT_SIZE = 20
+
     def __init__(self, initial_grid_size: Optional[List[int]] = [10, 10]) -> None:
         self.scene = Scene(*initial_grid_size)
-        self.screen = pygame.display.set_mode((500, 500), flags=pygame.RESIZABLE)
+
+        # screen sizes
+        self.scene_size = self.scene.render().get_size()
+        self.screen_size = (
+            self.scene_size[0] + GUI.GUI_EXTRA_SPACE,
+            self.scene_size[1],
+        )
+        self.screen = pygame.display.set_mode(self.screen_size)
+        pygame.display.set_caption("Intelsys sim")
+
+        # font
+        self.font = pygame.font.SysFont("arial", size=GUI.FONT_SIZE)
+
+        # movement and other gui stuff
         self.on_autopilot = False
+        self.setting_end_goal = False
+        self.setting_obstacle = False
 
         # useful for resetting
         self.scene_height = initial_grid_size[0]
@@ -108,13 +133,14 @@ class GUI:
     def run(self):
         instructions = []
         while 1:
-            self.screen.fill(WHITE)
+            self.draw()
             self.scene.draw(self.screen)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return
 
+                # key events
                 if event.type == pygame.KEYDOWN:
                     if not self.on_autopilot:
                         if event.key == pygame.K_s:
@@ -127,9 +153,33 @@ class GUI:
                             self.scene.moveUp()
                         if event.key == pygame.K_r:
                             self.reset()
-                    if event.key == pygame.K_p:
-                        self.on_autopilot = True
-                        instructions = self.scene.getInstructions()
+                        if event.key == pygame.K_e:
+                            if not self.setting_obstacle:
+                                self.setting_end_goal = True
+                        if event.key == pygame.K_o:
+                            if not self.setting_end_goal:
+                                self.setting_obstacle = True
+                        if event.key == pygame.K_p:
+                            self.on_autopilot = True
+                            instructions = self.scene.getInstructions()
+
+                # mouse click events
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    if (
+                        mouse_pos[0] < self.scene_size[0]
+                        and mouse_pos[1] < self.scene_size[1]
+                    ):
+                        coord = [
+                            mouse_pos[0] // GridDisplay.CELL_SIZE,
+                            mouse_pos[1] // GridDisplay.CELL_SIZE,
+                        ]
+                        if self.setting_end_goal:
+                            self.scene.setEndGoal(coord)
+                            self.setting_end_goal = False
+                        if self.setting_obstacle:
+                            self.scene.addObstacle(coord)
+                            self.setting_obstacle = False
 
             if self.on_autopilot:
                 if len(instructions) == 0:
@@ -142,3 +192,29 @@ class GUI:
 
     def reset(self):
         self.scene = Scene(self.scene_height, self.scene_width)
+
+    def render(self):
+        ret = pygame.Surface(self.screen_size)
+        ret.fill(WHITE)
+
+        texts = [
+            "Basic instructions:",
+            " - Use wasd to move.",
+            " - Use p to autopilot.",
+            " - Use r to reset.",
+            "",
+            "Advanced:",
+            " - Press o, then click on the map",
+            "     to create an obstacle.",
+            " - Press e, then click on the map",
+            "     to set the end goal.",
+        ]
+        rendered_texts = [self.font.render(text, True, BLACK) for text in texts]
+
+        for i in range(len(rendered_texts)):
+            ret.blit(rendered_texts[i], (self.scene_size[0], i * GUI.FONT_SIZE))
+
+        return ret
+
+    def draw(self):
+        self.screen.blit(self.render(), (0, 0))
