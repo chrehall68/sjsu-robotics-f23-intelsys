@@ -1,6 +1,5 @@
 # File by Eliot Hall
 # 9/16/23
-# solution for the maze thing, basically is just going to be
 # dijstra's shortest path algorithm
 
 from heapq import heappop, heappush
@@ -36,7 +35,7 @@ class WeightedCoordinate:
         return hash(tuple(self.coord))
 
 
-def djikstra(
+def dijkstra(
     maze: List[List[int]], start: List[int], end: List[int]
 ) -> List[List[int]]:
     """
@@ -54,13 +53,13 @@ def djikstra(
         A coordinate is valid if it is not 1 and if it is within the maze
         """
         ret = []
-        for x in [coord[0] - 1, coord[0] + 1]:
-            if x >= 0 and x < len(maze) and maze[x][coord[1]] != 1:
-                ret.append([x, coord[1]])
+        for row in [coord[0] - 1, coord[0] + 1]:
+            if row >= 0 and row < len(maze) and maze[row][coord[1]] != 1:
+                ret.append([row, coord[1]])
 
-        for y in [coord[1] - 1, coord[1] + 1]:
-            if y >= 0 and y < len(maze[0]) and maze[coord[0]][y] != 1:
-                ret.append([coord[0], y])
+        for col in [coord[1] - 1, coord[1] + 1]:
+            if col >= 0 and col < len(maze[0]) and maze[coord[0]][col] != 1:
+                ret.append([coord[0], col])
         return ret
 
     def manhattan_distance(coord: List[int]):
@@ -109,14 +108,4 @@ def djikstra(
                 return list(reversed(reconstruct_path()))
 
     # was impossible -_-
-    return
-
-
-if __name__ == "__main__":
-    print(
-        djikstra(
-            [[0, 0, 1, 1], [0, 1, 0, 0], [0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0]],
-            start=[0, 0],
-            end=[4, 3],
-        )
-    )
+    return []
