@@ -1,4 +1,7 @@
-from gui import GUI
+# project imports
+from gui.gui import GUI
+
+# outside imports
 from argparse import ArgumentParser
 
 parser = ArgumentParser()

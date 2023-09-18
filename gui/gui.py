@@ -1,10 +1,13 @@
-from typing import List, Callable
+# project imports
 from grid.grid import Grid
 from grid.a_star import a_star
-from gridDisplay import GridDisplay
-import pygame
-from constants import *
+from gui.gridDisplay import GridDisplay
+from gui.constants import *
+
+# outside imports
 import random
+from typing import List, Callable
+import pygame
 
 pygame.init()
 

@@ -1,7 +1,10 @@
+# project imports
 from grid.grid import Grid
-import pygame
-from constants import *
+from gui.constants import *
+
+# outside imports
 from typing import List
+import pygame
 
 
 class GridDisplay:
